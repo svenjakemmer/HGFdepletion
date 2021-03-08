@@ -216,33 +216,30 @@ PlotPars2gether <- function(model1 = "M07-ModelExtension2_log", model2 = "M07-Mo
 #' @export
 #'
 #' @examples
-PlotObservables <- function(fitnumber = step, value = fitvalue, errors = "errmodel"){
-  cairo_pdf(filename = file.path(.plotFolder, paste0("003-Observables_step", fitnumber, "_", value, ".pdf")), onefile = TRUE, width = 16, height = 16) #pdf öffnen
+PlotObservables <- function(fitnumber = step, value = fitvalue, errors = "blotit"){
+  cairo_pdf(filename = file.path(.plotFolder, paste0("003-Observables_step", fitnumber, "_", value, ".pdf")), onefile = TRUE, width = 16, height = 6) #pdf öffnen
   names_plot <-  names(observables)
   prediction <- prd0(times, bestfit)
 
-  data_plot <- subset(as.data.frame(mydata), name %in% names_plot & exp.type == "TC")
-  prediction_plot <- subset(as.data.frame(prediction, data = mydata, errfn = e), name %in% names_plot & exp.type == "TC")
+  data_plot <- subset(as.data.frame(mydata), name %in% names_plot)
+  prediction_plot <- subset(as.data.frame(prediction, data = mydata), name %in% names_plot) %>% as.data.table()
+  prediction_plot[name != "HGF_au" & time > 180, value := NA]
+  prediction_plot <- prediction_plot[!is.na(value)]
   
   prediction_plot$HGF <- factor(prediction_plot$HGF)
-  prediction_plot$diet <- factor(prediction_plot$diet)
-  prediction_plot$condition <- factor(prediction_plot$condition)
   data_plot$HGF <- factor(data_plot$HGF)
-  data_plot$diet <- factor(data_plot$diet)
-  data_plot$condition <- factor(data_plot$condition)
-  
-    P <- ggplot(prediction_plot, aes(x = time, y = value, color = condition, fill = condition)) +
+
+    P <- ggplot(prediction_plot, aes(x = time, y = value)) +
       facet_wrap(~name, scales = "free") +
       geom_line(size = 1) + 
-      scale_linetype_manual(values = c("dashed", "solid"), labels = c("0", "40") )+
+      # scale_linetype_manual(values = c("dashed", "solid"), labels = c("0", "40") )+
       geom_point(data = data_plot, size = 2) + 
-      theme_dMod(base_size = 18) + scale_color_DIET() + scale_fill_DIET() +
+      theme_dMod(base_size = 18) + scale_color_dMod() + 
       theme(legend.position = "top", legend.key.size = unit(0.6,"cm")) + 
       theme(axis.line = element_line(colour = "black"), 
             panel.grid.major = element_line(colour = "grey97"), 
             panel.grid.minor = element_line(colour = "grey97"), 
             panel.background = element_blank()) +
-      scale_y_continuous(limits = c(0,NA)) +
       xlab("time [min]") +
       ylab(paste0("Conc. [a.u.]"))
     

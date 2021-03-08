@@ -1,0 +1,9 @@
+"Description","Rate","Met","Met_HGF","pMet_HGF","pMet_HGF_int","Met_int","HGF_int"
+"Met production","k_prod",1,,,,,
+"Met degradation","k_deg*Met",-1,,,,,
+"Met activation","k_act * Met_HGF * Met_HGF",,-2,2,,,
+"Met internalization","k_int * pMet_HGF",,,-1,1,,
+"pMet_HGF_int dissociation","k_diss * pMet_HGF_int",,,,-1,1,1
+"Met recycling","k_rec*Met_int",1,,,,-1,
+"intracellular Met degradation","k_degint*Met_int",,,,,-1,
+"HGF degradation","k_degHGF*HGF_int",,,,,,-1

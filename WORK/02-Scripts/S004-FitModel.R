@@ -29,7 +29,7 @@ prediction <- (g*x*p)(times, para_plot,attach=TRUE)
 print(plotCombined(prediction,  mydata))
 
 # .. 2 multi start -----
-out <- mstrust(obj, ini, rinit = 1, rmax = 10, iterlim = 10, #1000
+out <- mstrust(obj, ini, rinit = 1, rmax = 10, iterlim = 100, #1000
                sd = 3, parupper = 12, parlower = -12, 
                cores = detectFreeCores(), fits = 10)
 

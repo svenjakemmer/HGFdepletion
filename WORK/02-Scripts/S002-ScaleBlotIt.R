@@ -35,6 +35,7 @@ library(conveniencefunctions)
 .dataOrigFolder <- "../00-DataOriginal"
 .dataFolder <- "../01-Data"
 .resultsFolder <- "../04-Results/S002-ScaleBlotIt"
+.plot <- FALSE
 
 for (x in c(.resultsFolder))
   if (!dir.exists(x)) dir.create(x, recursive = TRUE)
@@ -66,13 +67,13 @@ fwrite(data, file.path(.dataFolder, "01-Met_Data.rds"))
 # -------------------------------------------------------------------------#
 # 3 Data analysis plots ----
 # -------------------------------------------------------------------------#
-
+if(.plot){
 cairo_pdf(filename = file.path(.resultsFolder, paste0("SummaryPlots.Met.pdf")), onefile = TRUE, width = 10, height = 8) #pdf öffnen
   plotNew1(out)
   plotNew2(out)
   plotNew3(out)
 dev.off() #pdf schließen
-
+}
 
 # -------------------------------------------------------------------------#
 # 4 Plot HGF depletion data ----
@@ -80,28 +81,33 @@ dev.off() #pdf schließen
 
 # .. 0 Lead data -----
 HGFdata <- read.wide(file = file.path(.dataOrigFolder, "HGF_Depletion/HGF_depletion_LA.csv"), sep = ",", dec=".", header=TRUE, description = c(1,2,4)) %>% as.data.table()
-HGFdata[,Gel:=1]
 
-# .. 1 Run alignME -----
-out2 <- alignME(data=HGFdata, #[condition == "WD"&name == "tMet"&membrane%in%grep("B3", membrane, value = TRUE)]
-               model = "ys/sj",
-               errmodel = "sigmaR*value",
-               fixed = ys~HGF, # (name, time are included automatically)
-               latent = sj~Gel, #or membrane - to be used for scaling
-               error = sigmaR~1,
-               log = TRUE)
-
-data2 <- out %>% as.data.table()
+# .. 1 Calculate mean -----
+out2 <- HGFdata[, ":=" (sigma = sd(value), value = mean(value)), by = c("time")] %>% unique()
+data2 <- out2 %>% as.data.table()
 
 # .. 2 Save scald data -----
 fwrite(data2, file.path(.dataFolder, "01-HGFdepletion_Data.rds"))
 
 # .. 3 Plots -----
-cairo_pdf(filename = file.path(.resultsFolder, paste0("SummaryPlots.HGFdepletion.pdf")), onefile = TRUE, width = 6, height = 6) #pdf öffnen
+if(.plot){
+  HGFdata[,Gel:=1]
+  out2 <- alignME(data=HGFdata, #[condition == "WD"&name == "tMet"&membrane%in%grep("B3", membrane, value = TRUE)]
+                  model = "ys/sj",
+                  errmodel = "sigmaR*value",
+                  fixed = ys~HGF, # (name, time are included automatically)
+                  latent = sj~Gel, #or membrane - to be used for scaling
+                  error = sigmaR~1,
+                  log = TRUE,
+                  normalize_input = FALSE)
+  
+  cairo_pdf(filename = file.path(.resultsFolder, paste0("SummaryPlots.HGFdepletion.pdf")), onefile = TRUE, width = 6, height = 6) #pdf öffnen
   plotNew1(out2)
   plotNew2(out2)
   plotNew3(out2)
-dev.off() #pdf schließen
+  dev.off() #pdf schließen
+}
+
 
 # Exit ----
 
