@@ -589,12 +589,8 @@ if(FALSE){
 #' @export
 #'
 #' @examples
-SendProfiles <- function(jobname = profile.name, recover = T, nodetype = "best", method = "integrate"){
+SendProfiles <- function(jobname = profile.name, recover = T, method = "integrate", mypartition = "single"){
   setwd(.currentwd)
-  # define node type
-  if(nodetype == "best") mycores <- "16:best"
-  if(nodetype == "standard") mycores <- "16"
-  if(nodetype == "bestplus") mycores <- "16:bestplus"
   mymethod <- method
   
   # define parameter distribution on nodes
@@ -621,20 +617,22 @@ SendProfiles <- function(jobname = profile.name, recover = T, nodetype = "best",
   setwd(.modelFolder)
   for (i in profile_runs) {
     assign("i", i, envir=globalenv())
-    assign(paste0(jobname, i), runbg_bwfor({
+    assign(paste0(jobname, i), runbg_bwfor_slurm({
       profile(obj, 
               pars = bestfit, 
               whichPar = (start_vec[i]):(stop_vec[i]), 
               cores = 16, 
               fixed=NULL, 
               method = mymethod)
-    }, machine = "cluster", 
+    }, machine = "cluster2", 
     filename = paste0(jobname, i), 
     nodes = 1, 
-    cores = mycores, 
-    walltime = "7:00:00",
+    cores = 16, 
+    walltime = "30:00:00",
+    # input = c("obj", "bestfit", "e", "start_vec", "stop_vec", "i", "mymethod"), 
     compile=FALSE, 
-    recover = recover)
+    recover = recover,
+    password = mypassword)
     )
     
     # make function globally availible
@@ -643,6 +641,7 @@ SendProfiles <- function(jobname = profile.name, recover = T, nodetype = "best",
   assign("profile_runs", profile_runs, envir=globalenv())
   setwd(.currentwd)
 }
+
 
 
 #' Get profiles

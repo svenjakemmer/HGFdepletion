@@ -21,9 +21,9 @@
 
 # .. 1 Fits -----
 run <- "1"
-fit.name <- "M_1trust"
+fit.name <- "D_1trust"
   
-SendFits(recover = T, mypartition = "multi")
+SendFits(recover = F, mypartition = "single")
 SendFitsKnechte(recover = T, myknecht = "knecht1")
 GetFits()
 # load myframe 
@@ -55,9 +55,9 @@ eval(parse(text=paste0(fit.name, "$purge()")))
 # -------------------------------------------------------------------------#
 
 # .. 1 Profiles -----
-profile.name <- "job_prof1files"
+profile.name <- "D_2profiles"
 
-SendProfiles(recover = F, nodetype = "bestplus", method = "integrate")
+SendProfiles(recover = F, method = "integrate", mypartition = "single")
 # get and save, needs fitvalue
 GetProfiles()
 
@@ -68,7 +68,7 @@ PlotProfiles()
 
 grep("drug_d_", outerpars, value = T)
 plotProfile(subset(profiles, whichPar %in% grep("drug_d_", outerpars, value = T)), mode == "data")
-plotPaths(profiles, whichPar = "k_phospho_AKT")
+plotPaths(profiles, whichPar = "k_act")
 
 PurgeProfiles()
 

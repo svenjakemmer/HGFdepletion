@@ -48,7 +48,7 @@ source("../02-Scripts/Functions/UsefulFunctions.R")
 # 1 Load data ----
 # -------------------------------------------------------------------------#
 
-HGFdata <- fread(file.path(.dataFolder, "01-HGFdepletion_Data.rds")) %>% .[, unit_HGFs := NULL] #%>% .[time < 400]
+HGFdata <- fread(file.path(.dataFolder, "01-HGFdepletion_Data.rds")) %>% .[, unit_HGFs := NULL] %>% .[time < 200 & time != 0]
 Metdata <- fread(file.path(.dataFolder, "01-Met_Data.rds")) 
 
 mdata <- rbind(HGFdata, Metdata)
@@ -69,7 +69,7 @@ mydata <- mdata %>%
 observables <- eqnvec(
   pMet_au = "scale_pMet * (pMet_HGF + pMet_HGF_int) + offset_pMet",
   tMet_au = "scale_tMet * (Met + Met_HGF + pMet_HGF + pMet_HGF_int + Met_int) + offset_tMet",
-  HGF_au = "scale_HGF * HGF + offset_HGF"
+  HGF_au = "HGF"
   )
 
 # log-transform observables
@@ -128,6 +128,8 @@ if(.test.SS) trafo <- repar("x~0", trafo, x = c("HGF"))
 
 # .. 3 trafo list original -----
 trafoL <- branch(trafo, table = condition.grid) %>% 
+  insert("x~y",
+         x = "HGF", y = "HGF-sticky_HGF") %>%
   insert("x~y", 
          x = "HGF", y = HGF) %>% 
   
