@@ -20,7 +20,7 @@
 rm(list = ls(all.names = TRUE))
 try(setwd(dirname(rstudioapi::getSourceEditorContext()$path)))
 .currentwd <- getwd()
-.build <- TRUE
+.build <- FALSE
 .test.SS <- FALSE
 .doLog <- TRUE
 .dataFolder       <- "../01-Data"

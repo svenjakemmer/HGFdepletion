@@ -18,6 +18,7 @@
 # -------------------------------------------------------------------------#
 # 1 Optimization ----
 # -------------------------------------------------------------------------#
+source("../02-Scripts/Functions/PlotPathsMulti.R")
 
 #' Run fits on cluster
 #'
@@ -319,16 +320,12 @@ PlotStates <- function(runname = run, fitnumber = step, value = fitvalue){
   names_plot <-  reactions$states
   prediction <- prd0(times, bestfit)
   
-  prediction_plot <- subset(as.data.frame(prediction, data = mydata), name %in% names_plot & exp.type == "TC")
-  prediction_plot$HGF <- factor(prediction_plot$HGF)
-  prediction_plot$diet <- factor(prediction_plot$diet)
-  prediction_plot$condition <- factor(prediction_plot$condition)
-  
-  P <- ggplot(prediction_plot, aes(x = time, y = value, color = condition, linetype = HGF)) +
-    facet_wrap(~name, scales = "free_y") +
+  prediction_plot <- subset(as.data.frame(prediction, data = mydata), name %in% names_plot)
+
+  P <- ggplot(prediction_plot, aes(x = time, y = value)) +
+    facet_wrap(~name, scales = "free") +
     geom_line(size = 1) + 
-    scale_linetype_manual(values = c("dashed", "solid"), labels = c("0", "40") )+
-    theme_dMod(base_size = 18) + scale_color_DIET() + scale_fill_dMod() +
+    theme_dMod(base_size = 18) + scale_color_dMod() + 
     theme(legend.position = "top", legend.key.size = unit(0.6,"cm")) + 
     theme(axis.line = element_line(colour = "black"), 
           panel.grid.major = element_line(colour = "grey97"), 
@@ -395,10 +392,42 @@ PlotProfiles <- function(myprofiles = profiles, runname = run, fitnumber = step,
   if(!is.null(profpars)) myprofiles <- subset(myprofiles, whichPar %in% profpars)
   pl <- plotProfile(myprofiles, mode == "data")
   if(is.null(profpars)){
-    ggsave(file.path(.plotFolder, paste0("006-Profiles_", runname, ".run_step", fitnumber, "_", value, ".pdf")), pl, device = cairo_pdf, width = 90, height = 90, units = "cm")
+    ggsave(file.path(.plotFolder, paste0("006-Profiles_", runname, ".run_step", fitnumber, "_", value, ".pdf")), pl, device = cairo_pdf, width = 30, height = 30, units = "cm")
   } else print(pl)
 }
 
+#' Profiles plot
+#'
+#' @param profiles
+#' @param runname 
+#' @param fitnumber
+#' @param value
+#'
+#' @return
+#' @export
+#'
+#' @examples
+PlotProfsANDPars <- function(myprofiles = profiles, runname = run, fitnumber = step, value = fitvalue){
+  loadEnvir(.GlobalEnv)
+  if(length(profpars)<2) {
+    myprofiles <- base::subset(myprofiles, whichPar %in% profpars)
+    pl1 <- plotProfile(myprofiles, mode == "data")
+    pl2 <- PlotPathsMulti(myprofiles, whichPars = profpars)
+    pl <- cowplot::plot_grid(pl1,cowplot::plot_grid(NULL,pl2, nrow = 1, rel_widths = c(0.2,1)),nrow = 2, rel_heights = c(1,0.5))
+    ggsave(file.path(.plotFolder, paste0("008-ProfsANDPars_", runname, ".run_step", fitnumber, "_", value, ".pdf")), pl, device = cairo_pdf, width = 30, height = 10, units = "cm")
+  } else{
+    plotList <- NULL
+    for(z in 1:length(profpars)){
+      prof_sub <- subset(myprofiles, whichPar == profpars[z])
+      pl1 <- plotProfile(prof_sub, mode == "data") + theme(legend.position = "none")
+      pl2 <- PlotPathsMulti(prof_sub, whichPars = profpars[z])
+      pl <- cowplot::plot_grid(pl1,cowplot::plot_grid(NULL,pl2, nrow = 1, rel_widths = c(0.2,1)),nrow = 2, rel_heights = c(1,0.5))
+      plotList[[z]] <- pl
+    }
+    plot <- cowplot::plot_grid(plotlist = plotList, nrow = 2)
+    print(plot)
+  }
+}
 
 #' Flux plot
 #'

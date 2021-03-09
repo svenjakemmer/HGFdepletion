@@ -70,12 +70,17 @@ grep("drug_d_", outerpars, value = T)
 plotProfile(subset(profiles, whichPar %in% grep("drug_d_", outerpars, value = T)), mode == "data")
 plotPaths(profiles, whichPar = "k_act")
 
+plot <- PlotPathsMulti(profiles, whichPars = outerpars)
+ggsave(file.path(.plotFolder, paste0("007-ProfilePaths_", run, ".run_step", step, "_", fitvalue, ".pdf")), plot, device = cairo_pdf, width = 50, height = 50, units = "cm")
+
 PurgeProfiles()
 
 PlotArray(myPar = "Kd_pcRAF_R1R1", 
           direction = "up", 
           name %in% grep("R1",reactions$states, value = T) & ligand == "BTC" & sample == "MCF7")#  
 
+profpars <- c("sticky_HGF", "k_act", "k_int", "k_diss", "k_rec", "k_degint", "k_degHGF")
+PlotProfsANDPars()
 
 # for(i in profiles$whichPar %>% unique()){
 #   print(i)
