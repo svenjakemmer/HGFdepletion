@@ -149,7 +149,7 @@ SaveBestfit <- function(fitnumber = step, runname = run){
 #' @examples
 PlotWaterfall <- function(runname = run){
   pl <- plotValues(myframe)
-  ggsave(file.path(.plotFolder, paste0("001-Waterfall_", runname, ".run.pdf")), pl, width = 10, height = 8, device = cairo_pdf)
+  ggsave(file.path(.plotFolder, paste0("001-Waterfall_", runname, ".run.pdf")), pl, width = 6, height = 4, device = cairo_pdf)
   print(pl)
   print(myframe$value[c(1:20)])
 }
@@ -407,7 +407,7 @@ PlotProfiles <- function(myprofiles = profiles, runname = run, fitnumber = step,
 #' @export
 #'
 #' @examples
-PlotProfsANDPars <- function(myprofiles = profiles, runname = run, fitnumber = step, value = fitvalue){
+PlotProfsANDPars <- function(myprofiles = profiles, profpars, runname = run, fitnumber = step, value = fitvalue){
   loadEnvir(.GlobalEnv)
   if(length(profpars)<2) {
     myprofiles <- base::subset(myprofiles, whichPar %in% profpars)
@@ -424,8 +424,9 @@ PlotProfsANDPars <- function(myprofiles = profiles, runname = run, fitnumber = s
       pl <- cowplot::plot_grid(pl1,cowplot::plot_grid(NULL,pl2, nrow = 1, rel_widths = c(0.2,1)),nrow = 2, rel_heights = c(1,0.5))
       plotList[[z]] <- pl
     }
-    plot <- cowplot::plot_grid(plotlist = plotList, nrow = 2)
+    plot <- cowplot::plot_grid(plotlist = plotList, nrow = 1)
     print(plot)
+    ggsave(file.path(.plotFolder, paste0("008-ProfsANDPars_", runname, ".run_step", fitnumber, "_", value, ".pdf")), plot, device = cairo_pdf, width = 40, height = 20, units = "cm")
   }
 }
 

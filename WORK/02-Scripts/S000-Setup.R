@@ -23,7 +23,7 @@
 run <- "1"
 fit.name <- "D_1trust"
   
-SendFits(recover = F, mypartition = "single")
+SendFits(recover = F, mypartition = "multi")
 SendFitsKnechte(recover = T, myknecht = "knecht1")
 GetFits()
 # load myframe 
@@ -57,7 +57,7 @@ eval(parse(text=paste0(fit.name, "$purge()")))
 # .. 1 Profiles -----
 profile.name <- "D_2profiles"
 
-SendProfiles(recover = F, method = "integrate", mypartition = "single")
+SendProfiles(recover = F, method = "integrate", mypartition = "multi")
 # get and save, needs fitvalue
 GetProfiles()
 
@@ -79,8 +79,8 @@ PlotArray(myPar = "Kd_pcRAF_R1R1",
           direction = "up", 
           name %in% grep("R1",reactions$states, value = T) & ligand == "BTC" & sample == "MCF7")#  
 
-profpars <- c("sticky_HGF", "k_act", "k_int", "k_diss", "k_rec", "k_degint", "k_degHGF")
-PlotProfsANDPars()
+mypars <- c("k_act", "sticky_HGF", "offset_tMet")
+PlotProfsANDPars(profpars = mypars)
 
 # for(i in profiles$whichPar %>% unique()){
 #   print(i)
